@@ -3,7 +3,7 @@ import { DeckContext } from '../../context/context';
 import { useContext } from 'react';
 import { drawNextCard } from '../../api-services/card-services.js';
 
-export default function Deck() {
+export default function Deck({ setNewCard }) {
   const { deckId, remaining, setDeckData } = useContext(DeckContext);
 
   const handleDrawCard = async () => {
@@ -15,6 +15,7 @@ export default function Deck() {
       const response = await drawNextCard(deckId);
       console.log('Card drawn:', response);
       setDeckData((prev) => ({ ...prev, remaining: response.remaining }));
+      setNewCard(response.cards[0]);
     } catch (error) {
       console.error('Error drawing card:', error);
     }
@@ -22,10 +23,13 @@ export default function Deck() {
 
   return (
     <div className="Deck">
-      <h2>Deck Component</h2>
-      <p>Deck ID: {deckId}</p>
-      <p>Remaining Cards: {remaining}</p>
-      <button onClick={handleDrawCard}>Draw Card</button>
+      <p>{`${52 - remaining} / 52`}</p>
+      <button onClick={handleDrawCard}>
+        <img
+          src="https://deckofcardsapi.com/static/img/back.png"
+          alt="back-of-card"
+        />
+      </button>
     </div>
   );
 }

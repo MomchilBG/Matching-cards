@@ -20,3 +20,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+img {
+  display: block;
+  width: 15rem;
+}

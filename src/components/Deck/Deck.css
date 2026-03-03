@@ -1,0 +1,9 @@
+.Deck > button {
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.Deck > button:hover {
+  filter: brightness(1.2);
+}
