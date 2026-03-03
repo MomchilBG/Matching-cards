@@ -1,7 +1,16 @@
+.Deck {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 .Deck > button {
   border: none;
   cursor: pointer;
   background: none;
+  margin: 0;
 }
 
 .Deck > button:hover {

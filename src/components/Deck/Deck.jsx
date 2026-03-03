@@ -11,11 +11,18 @@ export default function Deck({ setNewCard }) {
       console.error('No deck ID available to draw a card.');
       return;
     }
+    if (remaining === 0) {
+      return;
+    }
     try {
       const response = await drawNextCard(deckId);
       console.log('Card drawn:', response);
-      setDeckData((prev) => ({ ...prev, remaining: response.remaining }));
-      setNewCard(response.cards[0]);
+      if (response) {
+        setDeckData((prev) => ({ ...prev, remaining: response.remaining }));
+        setNewCard(response.cards[0]);
+      } else {
+        return;
+      }
     } catch (error) {
       console.error('Error drawing card:', error);
     }
@@ -23,13 +30,16 @@ export default function Deck({ setNewCard }) {
 
   return (
     <div className="Deck">
-      <p>{`${52 - remaining} / 52`}</p>
-      <button onClick={handleDrawCard}>
-        <img
-          src="https://deckofcardsapi.com/static/img/back.png"
-          alt="back-of-card"
-        />
-      </button>
+      {remaining === 0 ? (
+        <div className="card-placeholder" />
+      ) : (
+        <button onClick={handleDrawCard}>
+          <img
+            src="https://deckofcardsapi.com/static/img/back.png"
+            alt="back-of-card"
+          />
+        </button>
+      )}
     </div>
   );
 }

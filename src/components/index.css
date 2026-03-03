@@ -19,9 +19,17 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #252525;
 }
 
 img {
   display: block;
   width: 15rem;
+}
+
+.card-placeholder {
+  width: 15rem;
+  aspect-ratio: calc(226 / 314);
+  background-color: #00000048;
+  border-radius: 0.5rem;
 }
