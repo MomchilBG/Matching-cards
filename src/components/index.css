@@ -1,7 +1,15 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Cinzel', serif;
+  font-style: normal;
+  font-optical-sizing: auto;
   line-height: 1.5;
   font-weight: 400;
+
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -25,6 +33,7 @@ body {
 img {
   display: block;
   width: 15rem;
+  image-rendering: optimizeSpeed;
 }
 
 .card-placeholder {

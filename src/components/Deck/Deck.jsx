@@ -2,8 +2,9 @@ import './Deck.css';
 import { DeckContext } from '../../context/context';
 import { useContext } from 'react';
 import { drawNextCard } from '../../api-services/card-services.js';
+import React from 'react';
 
-export default function Deck({ setNewCard }) {
+export default React.memo(function Deck({ setNewCard }) {
   const { deckId, remaining, setDeckData } = useContext(DeckContext);
 
   const handleDrawCard = async () => {
@@ -42,4 +43,4 @@ export default function Deck({ setNewCard }) {
       )}
     </div>
   );
-}
+});

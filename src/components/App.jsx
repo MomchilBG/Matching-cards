@@ -1,7 +1,7 @@
 import './App.css';
 import Deck from './Deck/Deck';
 import Card from './Card/Card';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getNewDeck } from '../api-services/deck-services';
 import { DeckContext } from '../context/context';
 
@@ -22,15 +22,31 @@ function App() {
     fetchDeck();
   }, []);
 
-  const incrementMatches = () => {
-    setMatches((prev) => prev + 1);
-  };
-
-  const calcMisses = () => {
-    return 51 - deckData.remaining - matches < 0
+  const calcMisses = () =>
+    51 - deckData.remaining - matches < 0
       ? 0
       : 51 - deckData.remaining - matches;
-  };
+
+  const sortDiscardedCards = useCallback((card) => {
+    if (card.isMatched === true) {
+      setLastMatch(card);
+    } else if (card.isMatched === false) {
+      setLastFailedMatch(card);
+    }
+  }, []);
+
+  const setMatchValue = useCallback((card, previousCard) => {
+    if (
+      previousCard.current &&
+      (previousCard.current.suit === card.suit ||
+        previousCard.current.value === card.value)
+    ) {
+      setPreviousCard({ ...previousCard.current, isMatched: true });
+      setMatches((prev) => prev + 1);
+    } else if (previousCard.current) {
+      setPreviousCard({ ...previousCard.current, isMatched: false });
+    }
+  }, []);
 
   return (
     <DeckContext.Provider value={{ ...deckData, setDeckData }}>
@@ -47,21 +63,11 @@ function App() {
           <Card card={lastMatch} />
         </div>
         <div id="middle-panel" className="panel">
-          <Card
-            card={previousCard}
-            setNextCard={
-              previousCard?.isMatched ? setLastMatch : setLastFailedMatch
-            }
-          />
-          <Card
-            card={newCard}
-            setNextCard={setPreviousCard}
-            isNewCardField={true}
-            incrementMatches={incrementMatches}
-          />
+          <Card card={previousCard} setNextCard={sortDiscardedCards} />
+          <Card card={newCard} setMatchValue={setMatchValue} />
         </div>
         <div id="right-panel" className="panel">
-          <p>{`${52 - deckData.remaining} / 52`}</p>
+          <p>{`Card ${52 - deckData.remaining} of 52`}</p>
           <Deck setNewCard={setNewCard} />
         </div>
       </div>
