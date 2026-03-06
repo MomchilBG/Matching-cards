@@ -12,6 +12,7 @@ function App() {
   const [lastMatch, setLastMatch] = useState(null);
   const [lastFailedMatch, setLastFailedMatch] = useState(null);
   const [matches, setMatches] = useState(0);
+  const [typeOfMatch, setTypeOfMatch] = useState(null);
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -36,15 +37,19 @@ function App() {
   }, []);
 
   const setMatchValue = useCallback((card, previousCard) => {
-    if (
-      previousCard.current &&
-      (previousCard.current.suit === card.suit ||
-        previousCard.current.value === card.value)
-    ) {
-      setPreviousCard({ ...previousCard.current, isMatched: true });
-      setMatches((prev) => prev + 1);
-    } else if (previousCard.current) {
-      setPreviousCard({ ...previousCard.current, isMatched: false });
+    if (previousCard.current) {
+      if (previousCard.current.suit === card.suit) {
+        setTypeOfMatch('suit');
+        setMatches((prev) => prev + 1);
+        setPreviousCard({ ...previousCard.current, isMatched: true });
+      } else if (previousCard.current.value === card.value) {
+        setTypeOfMatch('value');
+        setMatches((prev) => prev + 1);
+        setPreviousCard({ ...previousCard.current, isMatched: true });
+      } else {
+        setPreviousCard({ ...previousCard.current, isMatched: false });
+        setTypeOfMatch(null);
+      }
     }
   }, []);
 
@@ -63,12 +68,27 @@ function App() {
           <Card card={lastMatch} />
         </div>
         <div id="middle-panel" className="panel">
-          <Card card={previousCard} setNextCard={sortDiscardedCards} />
-          <Card card={newCard} setMatchValue={setMatchValue} />
+          <div id="top-bar">
+            <button>Reset Game</button>
+          </div>
+          <div id="match-area">
+            <p
+              className={`snap-text ${typeOfMatch ? 'visible' : 'hidden'}`}
+            >{`Snap ${typeOfMatch}!`}</p>
+            <div id="comparing-cards">
+              <Card card={previousCard} setNextCard={sortDiscardedCards} />
+              <Card card={newCard} setMatchValue={setMatchValue} />
+            </div>
+          </div>
+          <div id="bottom-bar">
+            <p>Score: {100 * matches}</p>
+            <button>Bet</button>
+          </div>
         </div>
         <div id="right-panel" className="panel">
           <p>{`Card ${52 - deckData.remaining} of 52`}</p>
           <Deck setNewCard={setNewCard} />
+          <p>{newCard ? `67% match chance` : 'Draw a card'}</p>
         </div>
       </div>
     </DeckContext.Provider>
