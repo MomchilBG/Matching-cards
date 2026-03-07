@@ -5,7 +5,7 @@ import React from 'react';
 export default React.memo(function Card({
   card = null,
   setNextCard = () => {},
-  setMatchValue = null,
+  setCardMatchedProperty = null,
 }) {
   const [loading, setLoading] = useState(true);
 
@@ -14,8 +14,8 @@ export default React.memo(function Card({
   useEffect(() => {
     if (card && card !== previousCard.current) {
       if (previousCard.current) {
-        if (setMatchValue) {
-          setMatchValue(card, previousCard);
+        if (setCardMatchedProperty) {
+          setCardMatchedProperty(card, previousCard);
         } else {
           setNextCard(previousCard.current);
         }
@@ -24,7 +24,7 @@ export default React.memo(function Card({
     } else if (card === null) {
       previousCard.current = null;
     }
-  }, [card, setNextCard, setMatchValue]);
+  }, [card, setNextCard, setCardMatchedProperty]);
 
   return (
     <div className="Card">

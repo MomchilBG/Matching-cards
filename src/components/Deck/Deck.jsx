@@ -1,13 +1,18 @@
 import './Deck.css';
 import { DeckContext } from '../../context/context';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { drawNextCard } from '../../api-services/card-services.js';
 import React from 'react';
 
-export default React.memo(function Deck({ setNewCard }) {
+export default React.memo(function Deck({ drawNewCard }) {
   const { deckId, remaining, setDeckData } = useContext(DeckContext);
 
+  const [isDrawing, setIsDrawing] = useState(false);
+
   const handleDrawCard = async () => {
+    if (isDrawing) return;
+
+    setIsDrawing(true);
     if (!deckId) {
       console.error('No deck ID available to draw a card.');
       return;
@@ -17,16 +22,16 @@ export default React.memo(function Deck({ setNewCard }) {
     }
     try {
       const response = await drawNextCard(deckId);
-      console.log('Card drawn:', response);
       if (response) {
         setDeckData((prev) => ({ ...prev, remaining: response.remaining }));
-        setNewCard(response.cards[0]);
+        drawNewCard(response.cards[0]);
       } else {
         return;
       }
     } catch (error) {
       console.error('Error drawing card:', error);
     }
+    setIsDrawing(false);
   };
 
   return (

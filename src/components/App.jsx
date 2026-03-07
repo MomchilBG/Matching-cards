@@ -1,7 +1,7 @@
 import './App.css';
 import Deck from './Deck/Deck';
 import Card from './Card/Card';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getNewDeck, shuffleDeck } from '../api-services/deck-services';
 import { DeckContext } from '../context/context';
 
@@ -13,12 +13,12 @@ function App() {
   const [lastFailedMatch, setLastFailedMatch] = useState(null);
   const [matches, setMatches] = useState(0);
   const [typeOfMatch, setTypeOfMatch] = useState(null);
+  const [drawnCards, setDrawnCards] = useState({});
 
   useEffect(() => {
     const fetchDeck = async () => {
       const newDeck = await getNewDeck();
       setDeckData({ deckId: newDeck.deck_id, remaining: newDeck.remaining });
-      console.log(newDeck);
     };
     fetchDeck();
   }, []);
@@ -32,6 +32,7 @@ function App() {
     setLastFailedMatch(null);
     setMatches(0);
     setTypeOfMatch(null);
+    setDrawnCards({});
   };
 
   const calcMisses = () =>
@@ -47,7 +48,7 @@ function App() {
     }
   }, []);
 
-  const setMatchValue = useCallback((card, previousCard) => {
+  const setCardMatchedProperty = useCallback((card, previousCard) => {
     if (previousCard.current) {
       if (previousCard.current.suit === card.suit) {
         setTypeOfMatch('suit');
@@ -63,6 +64,26 @@ function App() {
       }
     }
   }, []);
+
+  const drawNewCard = (card) => {
+    setNewCard(card);
+    setDrawnCards((drawnCards) => {
+      return {
+        ...drawnCards,
+        [card.suit]: drawnCards[card.suit] + 1 || 1,
+        [card.value]: drawnCards[card.value] + 1 || 1,
+      };
+    });
+  };
+
+  const calcMatchChance = useMemo(() => {
+    if (newCard && deckData) {
+      const drawnFromSuit = drawnCards[newCard.suit] || 0;
+      const drawnFromValue = drawnCards[newCard.value] || 0;
+      return deckData.remaining / (13 - drawnFromSuit + 4 - drawnFromValue);
+    }
+    return 1;
+  }, [drawnCards, newCard, deckData]);
 
   return (
     <DeckContext.Provider value={{ ...deckData, setDeckData }}>
@@ -88,7 +109,10 @@ function App() {
             >{`Snap ${typeOfMatch}!`}</p>
             <div id="comparing-cards">
               <Card card={previousCard} setNextCard={sortDiscardedCards} />
-              <Card card={newCard} setMatchValue={setMatchValue} />
+              <Card
+                card={newCard}
+                setCardMatchedProperty={setCardMatchedProperty}
+              />
             </div>
           </div>
           <div id="bottom-bar">
@@ -98,8 +122,14 @@ function App() {
         </div>
         <div id="right-panel" className="panel">
           <p>{`Card ${52 - deckData.remaining} of 52`}</p>
-          <Deck setNewCard={setNewCard} />
-          <p>{newCard ? `67% match chance` : 'Draw a card'}</p>
+          <Deck drawNewCard={drawNewCard} />
+          <p>
+            {newCard
+              ? deckData.remaining > 0
+                ? `${(100 / calcMatchChance).toFixed(1)}% match chance`
+                : 'Thanks for playing!'
+              : 'Draw a card'}
+          </p>
         </div>
       </div>
     </DeckContext.Provider>
