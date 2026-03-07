@@ -1,7 +1,7 @@
 #BetWindow {
   padding: 0 20px 20px 20px;
   background-color: #5c3d16;
-  width: 40rem;
+  width: fit-content;
 }
 
 #BetWindow > #bet-score-stats {
@@ -13,7 +13,17 @@
   color: gold;
 }
 
-#BetWindow > input {
+#BetWindow > #bet-settings {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#BetWindow > #bet-settings > button {
+  height: fit-content;
+  padding: 0.6rem 1rem;
+}
+
+#BetWindow > #bet-settings > div > input {
   font-family: 'Cinzel', serif;
   align-content: center;
   font-weight: 500;
@@ -24,17 +34,17 @@
   color: white;
 }
 
-#BetWindow > .error-text {
-  font-size: 1rem;
-  color: white;
-}
-
-#BetWindow > input:focus {
+#BetWindow > #bet-settings > div > input:focus {
   background-color: #996725;
   outline: none;
 }
 
-#BetWindow > #bet-window-buttons {
+#BetWindow > #bet-settings > div > .error-text {
+  font-size: 1rem;
+  color: white;
+}
+
+#BetWindow > #bet-window-navigation {
   display: flex;
   width: 100%;
   justify-content: space-evenly;

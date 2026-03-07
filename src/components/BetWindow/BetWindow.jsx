@@ -6,56 +6,84 @@ export default function BetWindow({
   score = 0,
   matchChanceRatio = 0,
   setBet = () => {},
+  bet = 0,
 }) {
-  const [betAmount, setBetAmount] = useState(0);
+  const [betAmount, setBetAmount] = useState(bet);
   const [error, setError] = useState(null);
 
+  const totalPoints = score + bet;
+
   const validateBetInput = (e) => {
-    const value = e.target.value;
+    const value = +e.target.value;
     setBetAmount(0);
-    if (typeof +value !== 'number' || Number.isNaN(+value)) {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
       setError('Please enter a number');
       return;
-    } else if (+value < 0) {
+    } else if (value < 0) {
       setError('Please enter a positive value');
       return;
-    } else if (+value > score) {
+    } else if (value > totalPoints) {
       setError('Insufficient score');
       return;
     } else {
       setError(null);
-      setBetAmount(+value);
+      setBetAmount(value);
     }
   };
 
-  const allIn = () => {
+  const changeBetAmount = (amount) => {
     const input = document.getElementById('bet-amount');
-    input.value = score;
-    setBetAmount(score);
+    if (+input.value + amount >= 0 && +input.value + amount <= totalPoints) {
+      input.value = +(input.value || 0) + amount;
+      setBetAmount((prev) => prev + amount);
+    } else if (+input.value + amount > totalPoints) {
+      input.value = totalPoints;
+      setBetAmount(totalPoints);
+    }
   };
 
   const confirmBet = () => {
-    setBet((prev) => prev + betAmount);
+    setBet(betAmount);
     closeWindow();
   };
 
   return (
     <div id="BetWindow">
       <div id="bet-score-stats">
-        <p>{`Score: ${score - betAmount}`}</p>
+        <p>{`Score: ${totalPoints - betAmount}`}</p>
         <p>{`Benefit: ${matchChanceRatio > 0 ? (betAmount * matchChanceRatio).toFixed(0) : betAmount}`}</p>
       </div>
-      <input
-        type="text"
-        id="bet-amount"
-        placeholder="Score to bet"
-        onChange={validateBetInput}
-      />
-      <p className={`error-text ${!error && 'hidden'}`}>{`${error}`}</p>
-      <div id="bet-window-buttons">
+      <div id="bet-settings">
+        <button
+          onClick={() => changeBetAmount(-100)}
+          disabled={betAmount < 100}
+        >
+          -100
+        </button>
+        <button onClick={() => changeBetAmount(-50)} disabled={betAmount < 50}>
+          -50
+        </button>
+        <div>
+          <input
+            type="text"
+            id="bet-amount"
+            placeholder="Score to bet"
+            value={betAmount}
+            onChange={validateBetInput}
+          />
+          <p className={`error-text ${!error && 'hidden'}`}>{`${error}`}</p>
+        </div>
+        <button
+          onClick={() => changeBetAmount(50)}
+          disabled={totalPoints - betAmount < 50}
+        >
+          +50
+        </button>
+        <button onClick={() => changeBetAmount(totalPoints)}>All in</button>
+      </div>
+      <div id="bet-window-navigation">
         <button onClick={closeWindow}>Cancel</button>
         <button onClick={confirmBet}>Confirm</button>
-        <button onClick={allIn}>All in</button>
       </div>
     </div>
   );

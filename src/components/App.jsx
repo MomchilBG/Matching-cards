@@ -173,6 +173,7 @@ function App() {
               score={score - bet}
               matchChanceRatio={calcMatchChance}
               setBet={setBet}
+              bet={bet}
             />
           </Modal>
         )}
