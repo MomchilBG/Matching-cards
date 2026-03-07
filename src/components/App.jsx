@@ -4,7 +4,7 @@ import Card from './Card/Card';
 import BetWindow from './BetWindow/BetWindow';
 import EndOfGame from './EndOfGame/EndOfGame';
 import Modal from './Modal/Modal';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { getNewDeck, shuffleDeck } from '../api-services/deck-services';
 import { DeckContext } from '../context/context';
 
@@ -20,6 +20,8 @@ function App() {
   const [showBet, setShowBet] = useState(false);
   const [bet, setBet] = useState(0);
   const [score, setScore] = useState(0);
+
+  const prevMatchChance = useRef(null);
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -72,12 +74,12 @@ function App() {
   const betWon = useCallback(
     (isWon) => {
       if (isWon) {
-        setScore((prev) => prev + +(bet * calcMatchChance).toFixed(0));
+        setScore((prev) => prev + +(bet * prevMatchChance.current).toFixed(0));
       }
       setScore((prev) => prev - bet);
       setBet(0);
     },
-    [bet, calcMatchChance],
+    [bet],
   );
 
   const setCardMatchedProperty = useCallback(
@@ -104,6 +106,9 @@ function App() {
   );
 
   const drawNewCard = (card) => {
+    if (calcMatchChance) {
+      prevMatchChance.current = calcMatchChance;
+    }
     setNewCard(card);
     setDrawnCards((drawnCards) => {
       return {
