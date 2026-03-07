@@ -1,6 +1,9 @@
 import './App.css';
 import Deck from './Deck/Deck';
 import Card from './Card/Card';
+import BetWindow from './BetWindow/BetWindow';
+import EndOfGame from './EndOfGame/EndOfGame';
+import Modal from './Modal/Modal';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getNewDeck, shuffleDeck } from '../api-services/deck-services';
 import { DeckContext } from '../context/context';
@@ -14,6 +17,9 @@ function App() {
   const [matches, setMatches] = useState(0);
   const [typeOfMatch, setTypeOfMatch] = useState(null);
   const [drawnCards, setDrawnCards] = useState({});
+  const [showBet, setShowBet] = useState(false);
+  const [bet, setBet] = useState(0);
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -33,6 +39,8 @@ function App() {
     setMatches(0);
     setTypeOfMatch(null);
     setDrawnCards({});
+    setBet(0);
+    setScore(0);
   };
 
   const calcMisses = () =>
@@ -48,22 +56,48 @@ function App() {
     }
   }, []);
 
-  const setCardMatchedProperty = useCallback((card, previousCard) => {
-    if (previousCard.current) {
-      if (previousCard.current.suit === card.suit) {
-        setTypeOfMatch('suit');
-        setMatches((prev) => prev + 1);
-        setPreviousCard({ ...previousCard.current, isMatched: true });
-      } else if (previousCard.current.value === card.value) {
-        setTypeOfMatch('value');
-        setMatches((prev) => prev + 1);
-        setPreviousCard({ ...previousCard.current, isMatched: true });
-      } else {
-        setPreviousCard({ ...previousCard.current, isMatched: false });
-        setTypeOfMatch(null);
-      }
+  const calcMatchChance = useMemo(() => {
+    if (newCard && deckData) {
+      const drawnFromSuit = drawnCards[newCard.suit] || 0;
+      const drawnFromValue = drawnCards[newCard.value] || 0;
+      return deckData.remaining / (13 - drawnFromSuit + 4 - drawnFromValue);
     }
-  }, []);
+    return 1;
+  }, [drawnCards, newCard, deckData]);
+
+  const betWon = useCallback(
+    (isWon) => {
+      if (isWon) {
+        setScore((prev) => prev + +(bet * calcMatchChance).toFixed(0));
+      }
+      setScore((prev) => prev - bet);
+      setBet(0);
+    },
+    [bet, calcMatchChance],
+  );
+
+  const setCardMatchedProperty = useCallback(
+    (card, previousCard) => {
+      if (previousCard.current) {
+        if (previousCard.current.suit === card.suit) {
+          setTypeOfMatch('suit');
+          setMatches((prev) => prev + 1);
+          setPreviousCard({ ...previousCard.current, isMatched: true });
+          bet ? betWon(true) : setScore((prev) => prev + 100);
+        } else if (previousCard.current.value === card.value) {
+          setTypeOfMatch('value');
+          setMatches((prev) => prev + 1);
+          setPreviousCard({ ...previousCard.current, isMatched: true });
+          bet ? betWon(true) : setScore((prev) => prev + 200);
+        } else {
+          setPreviousCard({ ...previousCard.current, isMatched: false });
+          setTypeOfMatch(null);
+          betWon(false);
+        }
+      }
+    },
+    [betWon, bet],
+  );
 
   const drawNewCard = (card) => {
     setNewCard(card);
@@ -75,15 +109,6 @@ function App() {
       };
     });
   };
-
-  const calcMatchChance = useMemo(() => {
-    if (newCard && deckData) {
-      const drawnFromSuit = drawnCards[newCard.suit] || 0;
-      const drawnFromValue = drawnCards[newCard.value] || 0;
-      return deckData.remaining / (13 - drawnFromSuit + 4 - drawnFromValue);
-    }
-    return 1;
-  }, [drawnCards, newCard, deckData]);
 
   return (
     <DeckContext.Provider value={{ ...deckData, setDeckData }}>
@@ -116,8 +141,9 @@ function App() {
             </div>
           </div>
           <div id="bottom-bar">
-            <p>Score: {100 * matches}</p>
-            <button>Bet</button>
+            <p>Score: {score - bet}</p>
+            <p>Placed bet: {bet}</p>
+            <button onClick={() => setShowBet(true)}>Bet</button>
           </div>
         </div>
         <div id="right-panel" className="panel">
@@ -131,6 +157,21 @@ function App() {
               : 'Draw a card'}
           </p>
         </div>
+        {showBet && (
+          <Modal>
+            <BetWindow
+              closeWindow={() => setShowBet(false)}
+              score={score - bet}
+              matchChanceRatio={calcMatchChance}
+              setBet={setBet}
+            />
+          </Modal>
+        )}
+        {deckData.remaining === 0 && (
+          <Modal>
+            <EndOfGame closeWindow={restartGame} />
+          </Modal>
+        )}
       </div>
     </DeckContext.Provider>
   );

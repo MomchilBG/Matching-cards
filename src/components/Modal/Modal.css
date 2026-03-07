@@ -1,0 +1,22 @@
+dialog {
+  display: block;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+
+  width: fit-content;
+  min-width: 400px;
+
+  overflow: auto;
+  padding: 20px;
+
+  border: 5px solid #472f10;
+  background-color: #38250c;
+
+  z-index: 1000;
+}
