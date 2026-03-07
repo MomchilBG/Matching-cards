@@ -79,3 +79,7 @@ button:hover {
   background-color: #00000048;
   border-radius: 0.5rem;
 }
+
+.hidden {
+  visibility: hidden;
+}

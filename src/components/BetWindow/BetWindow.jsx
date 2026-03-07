@@ -41,18 +41,22 @@ export default function BetWindow({
 
   return (
     <div id="BetWindow">
-      <p>{`${score - betAmount} score`}</p>
-      <p>{`Benefit: ${(betAmount * matchChanceRatio).toFixed(0)}`}</p>
+      <div id="bet-score-stats">
+        <p>{`Score: ${score - betAmount}`}</p>
+        <p>{`Benefit: ${matchChanceRatio > 0 ? (betAmount * matchChanceRatio).toFixed(0) : betAmount}`}</p>
+      </div>
       <input
         type="text"
         id="bet-amount"
         placeholder="Score to bet"
         onChange={validateBetInput}
       />
-      <p className={`error-text ${!error && 'hidden'}`}>{error}</p>
-      <button onClick={closeWindow}>Cancel</button>
-      <button onClick={confirmBet}>Confirm</button>
-      <button onClick={allIn}>All in</button>
+      <p className={`error-text ${!error && 'hidden'}`}>{`${error}`}</p>
+      <div id="bet-window-buttons">
+        <button onClick={closeWindow}>Cancel</button>
+        <button onClick={confirmBet}>Confirm</button>
+        <button onClick={allIn}>All in</button>
+      </div>
     </div>
   );
 }

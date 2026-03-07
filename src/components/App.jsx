@@ -60,7 +60,11 @@ function App() {
     if (newCard && deckData) {
       const drawnFromSuit = drawnCards[newCard.suit] || 0;
       const drawnFromValue = drawnCards[newCard.value] || 0;
-      return deckData.remaining / (13 - drawnFromSuit + 4 - drawnFromValue);
+      const numOfMatchingCards = 13 - drawnFromSuit + 4 - drawnFromValue;
+      if (numOfMatchingCards === 0) {
+        return -1;
+      }
+      return deckData.remaining / numOfMatchingCards;
     }
     return 1;
   }, [drawnCards, newCard, deckData]);
@@ -152,7 +156,7 @@ function App() {
           <p>
             {newCard
               ? deckData.remaining > 0
-                ? `${(100 / calcMatchChance).toFixed(1)}% match chance`
+                ? `${calcMatchChance > 0 ? (100 / calcMatchChance).toFixed(1) : 0}% match chance`
                 : 'Thanks for playing!'
               : 'Draw a card'}
           </p>

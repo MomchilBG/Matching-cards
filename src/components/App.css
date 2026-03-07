@@ -57,10 +57,6 @@
   color: gold;
 }
 
-.App > #middle-panel > #match-area > .hidden {
-  visibility: hidden;
-}
-
 .App > #middle-panel > #match-area > #comparing-cards {
   display: flex;
   gap: 2rem;
