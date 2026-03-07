@@ -7,6 +7,9 @@ import Modal from './Modal/Modal';
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { getNewDeck, shuffleDeck } from '../api-services/deck-services';
 import { DeckContext } from '../context/context';
+import { scoreBoosts } from '../constants';
+
+const { VALUE_MATCH, SUIT_MATCH } = scoreBoosts;
 
 function App() {
   const [deckData, setDeckData] = useState({ deckId: null, remaining: null });
@@ -14,7 +17,10 @@ function App() {
   const [previousCard, setPreviousCard] = useState(null);
   const [lastMatch, setLastMatch] = useState(null);
   const [lastFailedMatch, setLastFailedMatch] = useState(null);
-  const [matches, setMatches] = useState(0);
+  const [{ valueMatches, suitMatches }, setMatches] = useState({
+    valueMatches: 0,
+    suitMatches: 0,
+  });
   const [typeOfMatch, setTypeOfMatch] = useState(null);
   const [drawnCards, setDrawnCards] = useState({});
   const [showBet, setShowBet] = useState(false);
@@ -38,7 +44,7 @@ function App() {
     setPreviousCard(null);
     setLastMatch(null);
     setLastFailedMatch(null);
-    setMatches(0);
+    setMatches({ valueMatches: 0, suitMatches: 0 });
     setTypeOfMatch(null);
     setDrawnCards({});
     setBet(0);
@@ -46,9 +52,9 @@ function App() {
   };
 
   const calcMisses = () =>
-    51 - deckData.remaining - matches < 0
+    51 - deckData.remaining - suitMatches + valueMatches < 0
       ? 0
-      : 51 - deckData.remaining - matches;
+      : 51 - deckData.remaining - suitMatches + valueMatches;
 
   const sortDiscardedCards = useCallback((card) => {
     if (card.isMatched === true) {
@@ -87,14 +93,14 @@ function App() {
       if (previousCard.current) {
         if (previousCard.current.suit === card.suit) {
           setTypeOfMatch('suit');
-          setMatches((prev) => prev + 1);
+          setMatches((prev) => ({ ...prev, suitMatches: suitMatches + 1 }));
           setPreviousCard({ ...previousCard.current, isMatched: true });
-          bet ? betWon(true) : setScore((prev) => prev + 100);
+          bet ? betWon(true) : setScore((prev) => prev + SUIT_MATCH);
         } else if (previousCard.current.value === card.value) {
           setTypeOfMatch('value');
-          setMatches((prev) => prev + 1);
+          setMatches((prev) => ({ ...prev, valueMatches: valueMatches + 1 }));
           setPreviousCard({ ...previousCard.current, isMatched: true });
-          bet ? betWon(true) : setScore((prev) => prev + 200);
+          bet ? betWon(true) : setScore((prev) => prev + VALUE_MATCH);
         } else {
           setPreviousCard({ ...previousCard.current, isMatched: false });
           setTypeOfMatch(null);
@@ -102,7 +108,7 @@ function App() {
         }
       }
     },
-    [betWon, bet],
+    [betWon, bet, valueMatches, suitMatches],
   );
 
   const drawNewCard = (card) => {
@@ -124,7 +130,7 @@ function App() {
       <div className="App">
         <div id="left-panel" className="panel">
           <div id="match-count-display">
-            <h2>{matches} matches</h2>
+            <h2>{valueMatches + suitMatches} matches</h2>
             <h2>
               {`${calcMisses()} `}
               misses
@@ -179,7 +185,12 @@ function App() {
         )}
         {deckData.remaining === 0 && (
           <Modal>
-            <EndOfGame closeWindow={restartGame} />
+            <EndOfGame
+              closeWindow={restartGame}
+              score={score}
+              suitMatches={suitMatches}
+              valueMatches={valueMatches}
+            />
           </Modal>
         )}
       </div>

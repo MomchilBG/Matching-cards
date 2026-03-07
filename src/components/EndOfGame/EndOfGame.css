@@ -1,0 +1,47 @@
+#EndOfGame {
+  padding: 10px 20px 20px 20px;
+  background-color: #5c3d16;
+  width: 90%;
+  font-size: 1.5rem;
+  color: white;
+}
+
+#EndOfGame > h1 {
+  margin: 0;
+  color: gold;
+  text-decoration: underline;
+}
+
+#EndOfGame > hr {
+  border: 3px solid #38250c;
+}
+
+#EndOfGame > .final-stat {
+  display: flex;
+  justify-content: space-between;
+}
+
+#EndOfGame > .final-stat > p {
+  margin: 1rem 0;
+  width: fit-content;
+}
+
+#EndOfGame > .match {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  color: white;
+}
+
+#EndOfGame > .match > p {
+  margin: 0.8rem 0;
+}
+
+#EndOfGame .stat-value {
+  color: gold;
+  font-weight: 500;
+}
+
+#EndOfGame > button {
+  width: 100%;
+}
