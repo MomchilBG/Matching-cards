@@ -1,5 +1,5 @@
 import './Card.css';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import React from 'react';
 
 export default React.memo(function Card({
@@ -7,6 +7,8 @@ export default React.memo(function Card({
   setNextCard = () => {},
   setMatchValue = null,
 }) {
+  const [loading, setLoading] = useState(true);
+
   const previousCard = useRef(card);
 
   useEffect(() => {
@@ -19,19 +21,23 @@ export default React.memo(function Card({
         }
       }
       previousCard.current = card;
+    } else if (card === null) {
+      previousCard.current = null;
     }
   }, [card, setNextCard, setMatchValue]);
 
-  if (!card) {
-    return (
-      <div className="Card">
-        <div className="card-placeholder" />
-      </div>
-    );
-  }
   return (
     <div className="Card">
-      <img src={card.image} alt={`${card.value} of ${card.suit}`} />
+      {card ? (
+        <img
+          onLoad={() => setLoading(false)}
+          src={card.image}
+          alt={`${card.value} of ${card.suit}`}
+          style={{ visibility: loading ? 'hidden' : 'visible' }}
+        />
+      ) : (
+        <div className="card-placeholder" />
+      )}
     </div>
   );
 });

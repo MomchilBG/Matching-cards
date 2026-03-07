@@ -2,7 +2,7 @@ import './App.css';
 import Deck from './Deck/Deck';
 import Card from './Card/Card';
 import { useEffect, useState, useCallback } from 'react';
-import { getNewDeck } from '../api-services/deck-services';
+import { getNewDeck, shuffleDeck } from '../api-services/deck-services';
 import { DeckContext } from '../context/context';
 
 function App() {
@@ -22,6 +22,17 @@ function App() {
     };
     fetchDeck();
   }, []);
+
+  const restartGame = async () => {
+    const shuffled = await shuffleDeck(deckData.deckId);
+    setDeckData({ ...deckData, remaining: shuffled.remaining });
+    setNewCard(null);
+    setPreviousCard(null);
+    setLastMatch(null);
+    setLastFailedMatch(null);
+    setMatches(0);
+    setTypeOfMatch(null);
+  };
 
   const calcMisses = () =>
     51 - deckData.remaining - matches < 0
@@ -69,11 +80,11 @@ function App() {
         </div>
         <div id="middle-panel" className="panel">
           <div id="top-bar">
-            <button>Reset Game</button>
+            <button onClick={restartGame}>Restart Game</button>
           </div>
           <div id="match-area">
             <p
-              className={`snap-text ${typeOfMatch ? 'visible' : 'hidden'}`}
+              className={`snap-text ${!typeOfMatch && 'hidden'}`}
             >{`Snap ${typeOfMatch}!`}</p>
             <div id="comparing-cards">
               <Card card={previousCard} setNextCard={sortDiscardedCards} />
