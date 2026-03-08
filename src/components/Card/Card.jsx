@@ -7,7 +7,7 @@ export default React.memo(function Card({
   setNextCard = () => {},
   setCardMatchedProperty = null,
 }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!card);
 
   const previousCard = useRef(card);
 
@@ -28,15 +28,18 @@ export default React.memo(function Card({
 
   return (
     <div className="Card">
-      {card ? (
-        <img
-          onLoad={() => setLoading(false)}
-          src={card.image}
-          alt={`${card.value} of ${card.suit}`}
-          style={{ visibility: loading ? 'hidden' : 'visible' }}
-        />
-      ) : (
+      {!card ? (
         <div className="card-placeholder" />
+      ) : (
+        <>
+          <img
+            key={card.image}
+            src={card.image}
+            alt={`${card.value} of ${card.suit}`}
+            onLoad={() => setLoading(false)}
+            style={{ visibility: loading ? 'hidden' : 'visible' }}
+          />
+        </>
       )}
     </div>
   );
