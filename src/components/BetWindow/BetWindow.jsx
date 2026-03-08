@@ -53,7 +53,7 @@ export default function BetWindow({
     <div id="BetWindow">
       <div id="bet-score-stats">
         <p>{`Score: ${totalPoints - betAmount}`}</p>
-        <p>{`Benefit: ${matchChanceRatio > 0 ? (betAmount * matchChanceRatio).toFixed(0) : betAmount}`}</p>
+        <p>{`Benefit: ${matchChanceRatio > 0 ? (betAmount * (1 / matchChanceRatio)).toFixed(0) : betAmount}`}</p>
       </div>
       <div id="bet-settings">
         <button

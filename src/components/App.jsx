@@ -52,9 +52,9 @@ function App() {
   };
 
   const calcMisses = () =>
-    51 - deckData.remaining - suitMatches + valueMatches < 0
+    51 - deckData.remaining - (suitMatches + valueMatches) < 0
       ? 0
-      : 51 - deckData.remaining - suitMatches + valueMatches;
+      : 51 - deckData.remaining - (suitMatches + valueMatches);
 
   const sortDiscardedCards = useCallback((card) => {
     if (card.isMatched === true) {
@@ -65,23 +65,22 @@ function App() {
   }, []);
 
   const calcMatchChance = useMemo(() => {
-    if (newCard && deckData) {
+    if (newCard && deckData?.remaining) {
       const drawnFromSuit = drawnCards[newCard.suit] || 0;
       const drawnFromValue = drawnCards[newCard.value] || 0;
       const numOfMatchingCards = 13 - drawnFromSuit + 4 - drawnFromValue;
-      if (numOfMatchingCards === 0) {
-        return -1;
-      }
-      return deckData.remaining / numOfMatchingCards;
+
+      return numOfMatchingCards / deckData.remaining;
     }
     return 1;
-  }, [drawnCards, newCard, deckData]);
+  }, [drawnCards, newCard, deckData.remaining]);
 
   const betWon = useCallback(
     (isWon) => {
       if (isWon) {
         setScore(
-          (prev) => prev + +(bet * prevMatchChance.current - bet).toFixed(0),
+          (prev) =>
+            prev + +(bet * (1 / prevMatchChance.current) - bet).toFixed(0),
         );
       } else {
         setScore((prev) => prev - bet);
@@ -122,17 +121,17 @@ function App() {
 
   const drawNewCard = useCallback(
     (card) => {
-      if (calcMatchChance) {
-        prevMatchChance.current = calcMatchChance;
-      }
       setNewCard(card);
       setDrawnCards((drawnCards) => {
         return {
           ...drawnCards,
-          [card.suit]: drawnCards[card.suit] + 1 || 1,
-          [card.value]: drawnCards[card.value] + 1 || 1,
+          [card.suit]: (drawnCards[card.suit] || 0) + 1,
+          [card.value]: (drawnCards[card.value] || 0) + 1,
         };
       });
+      if (calcMatchChance) {
+        prevMatchChance.current = calcMatchChance;
+      }
     },
     [calcMatchChance],
   );
@@ -179,7 +178,7 @@ function App() {
           <p>
             {newCard
               ? deckData.remaining > 0
-                ? `${calcMatchChance > 0 ? (100 / calcMatchChance).toFixed(1) : 0}% match chance`
+                ? `${(100 * calcMatchChance).toFixed(1)}% match chance`
                 : 'Thanks for playing!'
               : 'Draw a card'}
           </p>
