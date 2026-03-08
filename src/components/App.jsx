@@ -174,6 +174,7 @@ function App() {
         </div>
         <div id="right-panel" className="panel">
           <p>{`Card ${52 - deckData.remaining} of 52`}</p>
+          <p id="tooltip">Match cards by value or suit</p>
           <Deck drawNewCard={drawNewCard} />
           <p>
             {newCard

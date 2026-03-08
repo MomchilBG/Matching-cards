@@ -102,10 +102,16 @@
   margin: 0;
 }
 
+.App > #right-panel > #tooltip {
+  font-size: 1.2rem;
+  background-color: transparent;
+  margin-top: 1rem;
+}
+
 .App > #right-panel > p:nth-child(1) {
   border-bottom: 5px solid #472f10;
 }
 
-.App > #right-panel > p:nth-child(3) {
+.App > #right-panel > p:nth-child(4) {
   border-top: 5px solid #472f10;
 }
