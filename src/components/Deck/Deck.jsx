@@ -4,7 +4,7 @@ import { useContext, useState } from 'react';
 import { drawNextCard } from '../../api-services/card-services.js';
 import React from 'react';
 
-export default React.memo(function Deck({ drawNewCard }) {
+export default React.memo(function Deck({ drawNewCard = () => {} }) {
   const { deckId, remaining, setDeckData } = useContext(DeckContext);
 
   const [isDrawing, setIsDrawing] = useState(false);

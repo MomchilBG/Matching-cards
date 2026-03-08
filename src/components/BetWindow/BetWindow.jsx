@@ -15,7 +15,6 @@ export default function BetWindow({
 
   const validateBetInput = (e) => {
     const value = +e.target.value;
-    setBetAmount(0);
     if (typeof value !== 'number' || Number.isNaN(value)) {
       setError('Please enter a number');
       return;
@@ -24,6 +23,9 @@ export default function BetWindow({
       return;
     } else if (value > totalPoints) {
       setError('Insufficient score');
+      return;
+    } else if (value % 1 !== 0) {
+      setError('Please enter a whole number');
       return;
     } else {
       setError(null);

@@ -80,9 +80,12 @@ function App() {
   const betWon = useCallback(
     (isWon) => {
       if (isWon) {
-        setScore((prev) => prev + +(bet * prevMatchChance.current).toFixed(0));
+        setScore(
+          (prev) => prev + +(bet * prevMatchChance.current - bet).toFixed(0),
+        );
+      } else {
+        setScore((prev) => prev - bet);
       }
-      setScore((prev) => prev - bet);
       setBet(0);
     },
     [bet],
@@ -93,12 +96,18 @@ function App() {
       if (previousCard.current) {
         if (previousCard.current.suit === card.suit) {
           setTypeOfMatch('suit');
-          setMatches((prev) => ({ ...prev, suitMatches: suitMatches + 1 }));
+          setMatches((prev) => ({
+            ...prev,
+            suitMatches: prev.suitMatches + 1,
+          }));
           setPreviousCard({ ...previousCard.current, isMatched: true });
           bet ? betWon(true) : setScore((prev) => prev + SUIT_MATCH);
         } else if (previousCard.current.value === card.value) {
           setTypeOfMatch('value');
-          setMatches((prev) => ({ ...prev, valueMatches: valueMatches + 1 }));
+          setMatches((prev) => ({
+            ...prev,
+            valueMatches: prev.valueMatches + 1,
+          }));
           setPreviousCard({ ...previousCard.current, isMatched: true });
           bet ? betWon(true) : setScore((prev) => prev + VALUE_MATCH);
         } else {
@@ -108,22 +117,25 @@ function App() {
         }
       }
     },
-    [betWon, bet, valueMatches, suitMatches],
+    [betWon, bet],
   );
 
-  const drawNewCard = (card) => {
-    if (calcMatchChance) {
-      prevMatchChance.current = calcMatchChance;
-    }
-    setNewCard(card);
-    setDrawnCards((drawnCards) => {
-      return {
-        ...drawnCards,
-        [card.suit]: drawnCards[card.suit] + 1 || 1,
-        [card.value]: drawnCards[card.value] + 1 || 1,
-      };
-    });
-  };
+  const drawNewCard = useCallback(
+    (card) => {
+      if (calcMatchChance) {
+        prevMatchChance.current = calcMatchChance;
+      }
+      setNewCard(card);
+      setDrawnCards((drawnCards) => {
+        return {
+          ...drawnCards,
+          [card.suit]: drawnCards[card.suit] + 1 || 1,
+          [card.value]: drawnCards[card.value] + 1 || 1,
+        };
+      });
+    },
+    [calcMatchChance],
+  );
 
   return (
     <DeckContext.Provider value={{ ...deckData, setDeckData }}>
